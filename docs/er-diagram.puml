@@ -1,0 +1,170 @@
+@startuml
+' ER Diagram generado a partir de los modelos TypeORM
+' Usa la sintaxis "entity" para mostrar campos y relaciones
+
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor<<PK>> YellowGreen
+  BackgroundColor<<FK>> Wheat
+}
+
+entity "CategoriaEspacio" as CategoriaEspacio {
+  *id : int <<PK>>
+  --
+  nombre : varchar
+  descripcion : text
+  requiere_aprobacion : boolean
+  tiempo_minimo_reserva : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "Ubicacion" as Ubicacion {
+  *id : int <<PK>>
+  --
+  nombre_edificio : varchar
+  codigo_edificio : varchar
+  piso : varchar
+  numero_aula : varchar
+  sector : varchar
+  created_at : datetime
+}
+
+entity "Espacio" as Espacio {
+  *id : int <<PK>>
+  --
+  codigo : varchar
+  nombre : varchar
+  capacidad_maxima : int
+  descripcion : text
+  estado : varchar
+  categoria_id : int <<FK>>
+  ubicacion_id : int <<FK>>
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "CaracteristicaEspacio" as CaracteristicaEspacio {
+  *id : int <<PK>>
+  --
+  nombre : varchar
+  descripcion : text
+  espacio_id : int <<FK>>
+}
+
+entity "DisponibilidadEspacio" as DisponibilidadEspacio {
+  *id : int <<PK>>
+  --
+  dia_semana : varchar
+  hora_inicio : time
+  hora_fin : time
+  espacio_id : int <<FK>>
+}
+
+entity "BloqueoEspacio" as BloqueoEspacio {
+  *id : int <<PK>>
+  --
+  fecha_inicio : datetime
+  fecha_fin : datetime
+  motivo : text
+  tipo_bloqueo : varchar
+  espacio_id : int <<FK>>
+  bloqueado_por_usuario_id : int <<FK>>
+  created_at : datetime
+}
+
+entity "TipoEvento" as TipoEvento {
+  *id : int <<PK>>
+  --
+  nombre : varchar
+  descripcion : text
+  requiere_aprobacion : boolean
+  color_hex : varchar
+  created_at : datetime
+}
+
+entity "EstadoReserva" as EstadoReserva {
+  *id : int <<PK>>
+  --
+  nombre : varchar
+  descripcion : text
+  color_hex : varchar
+  permite_edicion : boolean
+  es_final : boolean
+  orden : int
+}
+
+entity "Usuario" as Usuario {
+  *id : int <<PK>>
+  --
+  email : varchar
+  password_hash : varchar
+  nombre : varchar
+  apellido : varchar
+  estado : varchar
+  tipo_usuario_id : int <<FK>>
+  telefono : varchar
+  created_at : datetime
+  ultimo_login : datetime
+}
+
+entity "TipoUsuario" as TipoUsuario {
+  *id : int <<PK>>
+  --
+  nombre : varchar
+  descripcion : text
+  nivel_prioridad : int
+  permisos : json
+  created_at : datetime
+}
+
+entity "Reserva" as Reserva {
+  *id : int <<PK>>
+  --
+  codigo : varchar
+  fecha : date
+  hora_inicio : time
+  hora_fin : time
+  titulo : varchar
+  usuario_id : int <<FK>>
+  espacio_id : int <<FK>>
+  tipo_evento_id : int <<FK>>
+  estado_id : int <<FK>>
+  descripcion : text
+  num_asistentes : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "Notificacion" as Notificacion {
+  *id : int <<PK>>
+  --
+  tipo : varchar
+  titulo : varchar
+  mensaje : text
+  leida : boolean
+  usuario_id : int <<FK>>
+  reserva_id : int <<FK>>
+  espacio_id : int <<FK>>
+  metadata : json
+  created_at : datetime
+  leida_at : datetime
+}
+
+' Relaciones (FK -> PK)
+Usuario }o--|| TipoUsuario : tipo_usuario_id
+Espacio }o--|| CategoriaEspacio : categoria_id
+Espacio }o--|| Ubicacion : ubicacion_id
+CaracteristicaEspacio }o--|| Espacio : espacio_id
+DisponibilidadEspacio }o--|| Espacio : espacio_id
+BloqueoEspacio }o--|| Espacio : espacio_id
+BloqueoEspacio }o--|| Usuario : bloqueado_por_usuario_id
+Reserva }o--|| Usuario : usuario_id
+Reserva }o--|| Espacio : espacio_id
+Reserva }o--|| TipoEvento : tipo_evento_id
+Reserva }o--|| EstadoReserva : estado_id
+Notificacion }o--|| Usuario : usuario_id
+Notificacion }o--|| Reserva : reserva_id
+Notificacion }o--|| Espacio : espacio_id
+
+@enduml
